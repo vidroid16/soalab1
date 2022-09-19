@@ -1,0 +1,483 @@
+openapi: 3.0.3
+info:
+  title: Vehicles Service API
+  description: Laba po SOA V1215 by Shalya and Lebedev
+  version: 1.0.0
+  
+servers:
+  - url: 'https://localhost:8080/api'
+tags:
+  - name: vehicles
+    description: Основные методы для работы с колеекцией машин
+paths:
+  /vehicles:
+    post:
+      tags:
+        - vehicles
+      summary: добавить новую тачку.
+      requestBody:
+        description: json  с данными новой тачки 
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VehicleToModify'
+      responses:
+        '200':
+          description: Операция выполнена успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vehicle'
+        '400':
+          description: Передан невалидный json
+        '500':
+          description: сервер не отвечает
+      
+    get:
+      summary: Получить набор тачек
+      operationId: getVehicles
+      parameters:
+        - name: sort
+          in: query
+          description: выберите поле по которму надо сортировать (по умолчанию id)
+          required: false
+          explode: true
+          schema:
+            type: string
+            default: id
+            enum:
+                - id
+                - coordinates.x
+                - coordinates.y
+                - creationDate
+                - enginePower
+                - fuelConsumption
+                - type.CAR
+                - type.PLANE
+                - type.HELICOPTER
+                - type.SUBMARINE
+                - type.SHIP
+                - fuelType.KEROSENE
+                - fuelType.ELECTRICITY
+                - fuelType.PLASMA
+                - fuelType.ANTIMATTER
+
+        - name: sort-type
+          in: query
+          description: выберите способ сортировки (по умолчанию asc)
+          required: false
+          explode: true
+          schema:
+              type: string
+              default: asc
+              enum:
+                - desc
+                - asc
+          
+        - name: f-id
+          in: query
+          required: false
+          description: Поле для указания фильтра по Vehicle.id
+          schema:
+            type: integer
+        - name: f-name
+          in: query
+          required: false
+          description: Поле для указания фильтра по Vehicle.name
+          schema:
+            type: string
+        - name: f-date
+          in: query
+          required: false
+          description: Поле для указания фильтра по Vehicle.creationDate
+          schema:
+            type: string
+            format: date
+        - name: f-wheels-number
+          in: query
+          required: false
+          description: Поле для указания фильтра по Vehicle.wheelsNumber
+          schema:
+            type: integer
+        - name: f-mileage
+          in: query
+          required: false
+          description: Поле для указания фильтра по Vehicle.mileage
+          schema:
+            type: integer
+        - name: f-engine-power
+          in: query
+          required: false
+          description: Поле для указания фильтра по Vehicle.enginePower
+          schema:
+            type: integer
+        - name: f-fuel-consumption
+          in: query
+          required: false
+          description: Поле для указания фильтра по Vehicle.wheelsNumber
+          schema:
+            type: number
+            format: double
+        - name: f-x
+          in: query
+          required: false
+          description: Поле для указания фильтра по Vehicle.Coordinates.x
+          schema:
+            type: number
+            format: double
+        - name: f-y
+          in: query
+          required: false
+          description: Поле для указания фильтра по Vehicle.Coordinates.x
+          schema:
+            type: integer
+            format: int64
+        - name: f-vehicle-type
+          in: query
+          required: false
+          description: Поле для указания фильтра по Vehicle.vehicleType
+          schema:
+            type: string
+            enum:
+            - CAR
+            - PLANE
+            - HELICOPTER
+            - SUBMARINE
+            - SHIP
+            
+        - name: f-fuel-type
+          in: query
+          required: false
+          description: Поле для указания фильтра по Vehicle.fuelType
+          schema:
+            type: string
+            enum:
+            - KEROSENE
+            - ELECTRICITY
+            - PLASMA
+            - ANTIMATTER
+        - name: page
+          in: query
+          required: false
+          description: номер страницы, которую мы хотим вернуть, дефолтно первая
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+        - name: page-size
+          in: query
+          required: false
+          description: кол-во объектов на одной странице (минимум один), дефолтно пять
+          schema:
+            type: integer
+            default: 5
+            minimum: 1
+      tags:
+        - vehicles
+      responses:
+        '200':
+          description: Операция выполнена успешно
+          content:
+            application/json:
+              schema:
+                type: array
+                items: 
+                  $ref: '#/components/schemas/Vehicle'
+        '500':
+          description: сервер не отвечает
+          
+  /vehicles/{vehicle-id}:
+     delete:
+      tags:
+        - vehicles
+      summary: удалить машину по её ID.
+      operationId: deleteVehicle
+      parameters:
+        - name: vehicle-id
+          in: path
+          description: ID машины, которая будет удалена
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Операция выполнена успешно
+        '400':
+          description: Некорректно указан параметр vehicle-id
+        '404':
+          description: Машины с указанным vehicle-id не найдено
+        '500':
+          description: сервер не отвечает
+     
+     put:
+      tags:
+        - vehicles
+      summary: изменить существующую тачку.
+      operationId: updateVehicle
+      parameters:
+        - name: vehicle-id
+          in: path
+          description: ID машины, которая будет изменена
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        description: json тачки с полями, которые нужно обновить
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/VehicleToModify'
+      responses:
+        '200':
+          description: Операция выполнена успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vehicle'
+        '400':
+          description: Передан невалидный json
+        '500':
+          description: сервер не отвечает
+          
+          
+     get:
+      tags:
+        - vehicles
+      summary: получить машину по её ID.
+      operationId: getVehicle
+      parameters:
+        - name: vehicle-id
+          in: path
+          description: ID машины, которую нужно получить
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Операция выполнена успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vehicle'
+        '400':
+          description: Некорректно указан параметр vehicle-id
+        '404':
+          description: Машины с указанным vehicle-id не найдено
+        '500':
+          description: сервер не отвечает
+
+  /vehicles/sum/engine-power:
+     get:
+      tags:
+        - vehicles
+      summary: Рассчитать сумму значений поля enginePower для всех объектов.
+      operationId: getVehicleEnginePowerSum
+      responses:
+        '200':
+          description: Операция выполнена успешно
+          content:
+            application/json:
+              schema:
+                type: integer
+                example: 676
+        '500':
+          description: сервер не отвечает
+  
+  /vehicles/sum/engine-power-more/{engine-power}:
+     get:
+      tags:
+        - vehicles
+      summary: Вернуть количество объектов, значение поля enginePower которых больше заданного.
+      operationId: getSumEnginePowerMoreThan
+      parameters:
+        - name: engine-power
+          in: path
+          description: engine-power, сумму больше которых нужно найти
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Операция выполнена успешно
+          content:
+            application/json:
+              schema:
+                type: integer
+                example: 676
+        '400':
+          description: Некорректно указан параметр engine-power
+        '500':
+          description: сервер не отвечает
+          
+  /vehicles/substring/{name-substring}:
+     get:
+      tags:
+        - vehicles
+      summary: Вернуть массив объектов, значение поля name которых содержит заданную подстроку.
+      operationId: getAllVehicleWithSubstring
+      parameters:
+        - name: name-substring
+          in: path
+          description: name-substring, подстрока, объекты содержащие кототрую в поле Vehicle.name вернутся 
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Операция выполнена успешно
+          content:
+            application/json:
+              schema:
+                type: array
+                items: 
+                  $ref: '#/components/schemas/Vehicle'
+        '500':
+          description: сервер не отвечает
+
+components:
+  schemas:
+    Coordinates:
+      type: object
+      properties:
+        x:
+          type: number
+          format: double
+          example: 56.42
+        y:
+          type: integer
+          format: int64
+          example: 666
+      xml:
+        name: category
+    
+    Vehicle:
+      required:
+        - id
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 10
+          
+        name:
+          type: string
+          example: BMW X6
+          nullable: false
+          
+        creationDate:
+          type: string
+          format: date
+          example: 21.03.2021
+          nullable: false
+          
+        wheelsNumber:
+          type: integer
+          format: int32
+          example: 4
+          minimum: 0
+          
+        mileage:
+          type: integer
+          format: int32
+          example: 14000
+          minimum: 0
+          
+        enginePower:
+          type: integer
+          format: int32
+          minimum: 0
+          exclusiveMinimum: true
+          nullable: false
+          
+        fuelConsumption:
+          type: number
+          format: double
+          minimum: 0
+          exclusiveMinimum: true
+          nullable: true
+          
+        coordinates:
+          $ref: '#/components/schemas/Coordinates'
+          
+        vehicleType:
+          type: string
+          nullable: true
+          enum:
+            - CAR
+            - PLANE
+            - HELICOPTER
+            - SUBMARINE
+            - SHIP
+            
+        fuelType:
+          type: string
+          nullable: false
+          enum:
+            - KEROSENE
+            - ELECTRICITY
+            - PLASMA
+            - ANTIMATTER
+            
+    VehicleToModify:
+      type: object
+      properties:
+        name:
+          type: string
+          example: BMW X6
+          nullable: false
+          
+        wheelsNumber:
+          type: integer
+          format: int32
+          example: 4
+          minimum: 0
+          
+        mileage:
+          type: integer
+          format: int32
+          example: 14000
+          minimum: 0
+          
+        enginePower:
+          type: integer
+          format: int32
+          minimum: 0
+          exclusiveMinimum: true
+          nullable: false
+          
+        fuelConsumption:
+          type: number
+          format: double
+          minimum: 0
+          exclusiveMinimum: true
+          nullable: true
+          
+        coordinates:
+          $ref: '#/components/schemas/Coordinates'
+          
+        vehicleType:
+          type: string
+          nullable: true
+          enum:
+            - CAR
+            - PLANE
+            - HELICOPTER
+            - SUBMARINE
+            - SHIP
+            
+        fuelType:
+          type: string
+          nullable: false
+          enum:
+            - KEROSENE
+            - ELECTRICITY
+            - PLASMA
+            - ANTIMATTER
+      xml:
+        name: pet
