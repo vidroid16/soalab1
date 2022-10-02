@@ -297,7 +297,7 @@ paths:
           description: сервер не отвечает
 
   /vehicles/engine-power/sum:
-     get:
+     post:
       tags:
         - vehicles
       summary: Рассчитать сумму значений поля enginePower для всех объектов.
@@ -314,7 +314,7 @@ paths:
           description: сервер не отвечает
   
   /vehicles/engine-power/more/{engine-power}:
-     get:
+     post:
       tags:
         - vehicles
       summary: Вернуть количество объектов, значение поля enginePower которых больше заданного.
@@ -341,7 +341,7 @@ paths:
           description: сервер не отвечает
           
   /vehicles/name/substring/{substring}:
-     get:
+     post:
       tags:
         - vehicles
       summary: Вернуть массив объектов, значение поля name которых содержит заданную подстроку.
