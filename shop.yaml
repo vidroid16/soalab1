@@ -11,7 +11,7 @@ tags:
     description: Дополнительные методы для работы с коллекцией машин
 paths:
   /shop/search/by-number-of-wheels/{from}/{to}:
-    get:
+    post:
       tags:
         - shop
       summary: найти все транспортные средства с числом колёс в заданном диапазоне.
@@ -46,7 +46,7 @@ paths:
           description: Машин с указанным количеством колес не найдено
         
   /shop/fix-distance/{vehicle-id}:
-    put:
+    post:
       tags:
         - shop
       summary: скрутить счётчик пробега транспортного средства с заданным id до нуля.
